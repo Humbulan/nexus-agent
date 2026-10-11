@@ -141,6 +141,12 @@ func main() {
     watch := flag.Bool("watch", false, "run continuously every 30 seconds")
     interval := flag.Duration("interval", 30*time.Second, "interval between checks in watch mode")
     flag.Parse()
+    if checkOnly {
+    	os.Exit(runCheckMode(*configPath))
+    }
+    if metricsAddr != "" {
+    	startMetricsServer(metricsAddr)
+    }
 
     services, err := loadServices(*configPath)
     if err != nil {
