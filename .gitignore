@@ -1,3 +1,33 @@
+# binaries
 nexus-agent
+nexus-agent-*
+/bin/
+/dist/
+
+# secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+secrets.yaml
+secrets.yml
+
+# local config overrides
+services.local.json
+config.local.yaml
+
+# editor / os
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# logs / state
 *.log
+*.db
+*.db-wal
+*.db-shm
+*.out
 main.go.backup
