@@ -5,7 +5,8 @@ import (
 "fmt"
 "net/http"
 "os"
-"sync"
+"strings"
+	"sync"
 )
 
 var metricsAddr string
@@ -72,4 +73,41 @@ fmt.Fprintln(os.Stderr, "metrics server:", err)
 }
 }()
 fmt.Fprintln(os.Stderr, "metrics: listening on", addr+"/metrics")
+}
+
+func pushToPushgateway() {
+url := os.Getenv("NEXUS_PUSHGATEWAY")
+if url == "" {
+return
+}
+metrics.mu.Lock()
+var buf strings.Builder
+buf.WriteString("# TYPE nexus_service_up gauge\n")
+for name, up := range metrics.up {
+v := 0
+if up {
+v = 1
+}
+fmt.Fprintf(&buf, "nexus_service_up{service=%q} %d\n", name, v)
+}
+buf.WriteString("# TYPE nexus_service_latency_ms gauge\n")
+for name, ms := range metrics.latency {
+fmt.Fprintf(&buf, "nexus_service_latency_ms{service=%q} %f\n", name, ms)
+}
+buf.WriteString("# TYPE nexus_last_run_ms gauge\n")
+fmt.Fprintf(&buf, "nexus_last_run_ms %f\n", metrics.lastRun)
+metrics.mu.Unlock()
+
+endpoint := strings.TrimRight(url, "/") + "/metrics/job/nexus-agent"
+resp, err := http.Post(endpoint, "text/plain", strings.NewReader(buf.String()))
+if err != nil {
+fmt.Fprintln(os.Stderr, "pushgateway push failed:", err)
+return
+}
+defer resp.Body.Close()
+if resp.StatusCode >= 300 {
+fmt.Fprintln(os.Stderr, "pushgateway returned status", resp.StatusCode)
+return
+}
+fmt.Fprintln(os.Stderr, "metrics pushed to pushgateway")
 }

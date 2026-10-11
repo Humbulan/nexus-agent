@@ -67,7 +67,7 @@ func loadServices(path string) ([]Service, error) {
 
 func runOnce(services []Service, webhook string, quiet bool) {
 	start := time.Now()
-	defer func() { recordRun(float64(time.Since(start).Milliseconds())) }()
+	defer func() { recordRun(float64(time.Since(start).Milliseconds())); pushToPushgateway() }()
     var wg sync.WaitGroup
     ch := make(chan Service, len(services))
 
