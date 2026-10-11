@@ -1,0 +1,22 @@
+[Unit]
+Description=nexus-agent service monitor
+Documentation=https://github.com/Humbulan/nexus-agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/nexus-agent --watch --interval 30s --config /etc/nexus-agent/services.json
+EnvironmentFile=-/etc/nexus-agent/nexus-agent.env
+Restart=always
+RestartSec=5s
+User=nexus
+Group=nexus
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/etc/nexus-agent
+
+[Install]
+WantedBy=multi-user.target

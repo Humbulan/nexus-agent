@@ -1,0 +1,6 @@
+.git
+.github
+*.md
+index.html
+favicon.svg
+deploy
