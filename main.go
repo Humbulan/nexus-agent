@@ -26,15 +26,19 @@ var lastState = map[string]bool{}
 
 func check(s Service, wg *sync.WaitGroup, ch chan<- Service) {
     defer wg.Done()
-    conn, err := net.DialTimeout(s.Protocol, "127.0.0.1:"+s.Port, 1*time.Second)
+    start := time.Now()
+	conn, err := net.DialTimeout(s.Protocol, "127.0.0.1:"+s.Port, 1*time.Second)
+	ms := float64(time.Since(start).Milliseconds())
     if err != nil {
         s.Protocol = "down"
-        ch <- s
+        recordCheck(s.Name, false, ms)
+		ch <- s
         return
     }
     conn.Close()
     s.Protocol = "up"
-    ch <- s
+    recordCheck(s.Name, true, ms)
+	ch <- s
 }
 
 func sendSlack(webhook string, message string) {
@@ -62,6 +66,8 @@ func loadServices(path string) ([]Service, error) {
 }
 
 func runOnce(services []Service, webhook string, quiet bool) {
+	start := time.Now()
+	defer func() { recordRun(float64(time.Since(start).Milliseconds())) }()
     var wg sync.WaitGroup
     ch := make(chan Service, len(services))
 
