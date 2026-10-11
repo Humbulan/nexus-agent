@@ -8,7 +8,7 @@ Checks 79 services in 25 milliseconds. Sends state-change alerts to Slack. No da
 
 Download the binary for your platform from the Releases page, or:
 
-    curl -L https://github.com/YOURNAME/nexus-agent/releases/latest/download/nexus-agent-linux-amd64 -o nexus-agent
+    curl -L https://github.com/Humbulan/nexus-agent/releases/latest/download/nexus-agent-linux-amd64 -o nexus-agent
     chmod +x nexus-agent
     sudo mv nexus-agent /usr/local/bin/
 
